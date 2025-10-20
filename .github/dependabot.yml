@@ -1,0 +1,76 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "03:00"
+    open-pull-requests-limit: 1
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "-"
+    groups:
+      gha-minor-patch:
+        update-types: ["minor", "patch"]
+        patterns: ["*"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "03:30"
+    open-pull-requests-limit: 2
+    labels: ["dependencies", "npm"]
+    commit-message:
+      prefix: "build"
+      prefix-development: "build"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "-"
+    groups:
+      dev-eslint:
+        update-types: ["minor", "patch"]
+        patterns:
+          [
+            "eslint*",
+            "@eslint/*",
+            "eslint-plugin-*",
+            "eslint-config-*",
+            "eslint-import-resolver-typescript",
+          ]
+      dev-stylelint:
+        update-types: ["minor", "patch"]
+        patterns: ["stylelint*", "stylelint-config-*", "stylelint-define-config"]
+      dev-testing:
+        update-types: ["minor", "patch"]
+        patterns: ["jest*", "jest-environment-jsdom*", "jest-extended*", "vitest*"]
+      dev-build:
+        update-types: ["minor", "patch"]
+        patterns: ["rollup*", "typescript*"]
+      dev-release:
+        update-types: ["minor", "patch"]
+        patterns: ["@semantic-release/*", "conventional-changelog-conventionalcommits"]
+      dev-commit:
+        update-types: ["minor", "patch"]
+        patterns: ["husky", "lint-staged", "@commitlint/*"]
+      dev-types:
+        update-types: ["minor", "patch"]
+        patterns: ["@types/*"]
+      dev-format:
+        update-types: ["minor", "patch"]
+        patterns: ["prettier"]
+      dev-misc:
+        update-types: ["minor", "patch"]
+        patterns: ["globals"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

@@ -1,0 +1,50 @@
+name: Semantic Pull Request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            revert
+            style
+            test
+          # Whether a scope is required in the pull request title.
+          requireScope: false
+          # Disallow certain scopes (e.g., 'release' or all uppercase scopes).
+          disallowScopes: |
+            [A-Z]+
+          # The subject must not be empty and must not start with a capital letter.
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            doesn't start with an uppercase character.
+          # This regex enforces the following rules:
+          # 1. The type is one of the allowed types.
+          # 2. The scope (optional) is a kebab-case string.
+          # 3. The subject description is required and not empty.
+          headerPattern: '^(\w*)(?:\(([\w.-]+)\))?:\s?(.*)$'
+          headerPatternCorrespondence: type, scope, subject

@@ -1,0 +1,72 @@
+# === OS / Editor ===
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+.idea/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+.history/
+*.code-workspace
+
+# === Dependencies ===
+node_modules/
+
+# === Node Tooling ===
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn-integrity
+
+# === Tool Logs ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === Caches ===
+.eslintcache
+*.cache
+.turbo/
+.cache/
+*.tsbuildinfo
+.parcel-cache/
+.npm/
+.yarn-integrity
+
+# === Test Output ===
+.vscode-test/
+.vscode-test-web/
+coverage/
+.nyc_output/
+
+# === Environment / Secrets ===
+.env
+.env.*
+!.env.example
+
+# === Build Outputs ===
+dist/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.vuepress/dist/
+.serverless/
+
+# === Pack Artifacts ===
+/*.tgz
+*.vsix
+
+# === Temp / Runtime ===
+**/tmp/
+**/temp/
+pids/
+*.pid
+*.pid.lock

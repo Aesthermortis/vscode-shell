@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM"],
+    "types": [],
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "esModuleInterop": true
+  },
+  "include": ["eslint.config.js", "src/**/*", "scripts/**/*", "types/**/*.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}
