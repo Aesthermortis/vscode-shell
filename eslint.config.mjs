@@ -1,8 +1,9 @@
 // @ts-check
 
-import comments from "@eslint-community/eslint-plugin-eslint-comments/configs";
+import { createRequire } from "node:module";
 import css from "@eslint/css";
-import js from "@eslint/js";
+import { FlatCompat } from "@eslint/eslintrc";
+import eslint from "@eslint/js";
 import json from "@eslint/json";
 import markdown from "@eslint/markdown";
 import html from "@html-eslint/eslint-plugin";
@@ -11,14 +12,11 @@ import stylistic from "@stylistic/eslint-plugin";
 import eslintConfigPrettier from "eslint-config-prettier";
 import { importX } from "eslint-plugin-import-x";
 import pluginJest from "eslint-plugin-jest";
-import jestExtended from "eslint-plugin-jest-extended";
 import jsdocPlugin from "eslint-plugin-jsdoc";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import nodePlugin from "eslint-plugin-n";
 import nounsanitized from "eslint-plugin-no-unsanitized";
-import promise from "eslint-plugin-promise";
 import * as regexpPlugin from "eslint-plugin-regexp";
-import security from "eslint-plugin-security";
 import * as sonarjs from "eslint-plugin-sonarjs";
 import unicornPlugin from "eslint-plugin-unicorn";
 import yml from "eslint-plugin-yml";
@@ -26,6 +24,23 @@ import { defineConfig } from "eslint/config";
 import globals from "globals";
 import * as tseslint from "typescript-eslint";
 import * as yamlParser from "yaml-eslint-parser";
+
+const require = createRequire(import.meta.url);
+const security = require("eslint-plugin-security");
+
+// Define a FlatCompat instance to convert old configs
+const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
+
+/** @type {(cfg: unknown) => import("eslint").Linter.Config} */
+const asFlat = (cfg) => /** @type {import("eslint").Linter.Config} */ (cfg);
+
+/**
+ * @typedef {{ configs: { recommended: import("eslint").Linter.Config } }} PluginWithRecommendedConfig
+ */
+
+const nounsanitizedPlugin = /** @type {PluginWithRecommendedConfig} */ (
+  /** @type {unknown} */ (nounsanitized)
+);
 
 // Define glob patterns for test files
 const testGlobs = ["**/*.{test,spec}.{js,jsx,cjs,mjs,ts,tsx,cts,mts}", "**/jest.setup.js"];
@@ -38,34 +53,7 @@ const baseGlobals = {
   ...globals.greasemonkey,
 };
 
-/**
- * Type guard: narrows a plugin to an object with an optional `configs` map.
- * @param {unknown} plugin - ESLint plugin module.
- * @returns {plugin is { configs?: Record<string, import("eslint").Linter.Config> }} True when the plugin exposes a `configs` property.
- */
-const hasConfigs = (plugin) => {
-  return plugin != null && typeof plugin === "object" && "configs" in plugin;
-};
-
-/**
- * Returns a plugin preset when available, keeping `@ts-check` type safety intact.
- * @param {unknown} plugin ESLint plugin that may expose preset flat configs.
- * @param {string} key Preset identifier to read from the plugin configuration map.
- * @returns {import("eslint").Linter.Config | undefined} Matching flat config when the preset exists.
- */
-const preset = (plugin, key) => {
-  if (!hasConfigs(plugin)) {
-    return;
-  }
-  const cfgs = plugin.configs;
-  if (!cfgs || !Object.prototype.hasOwnProperty.call(cfgs, key)) {
-    return;
-  }
-  const map = new Map(Object.entries(cfgs));
-  return map.get(key);
-};
-
-const flatConfig = /** @type {import("eslint").Linter.Config[]} */ ([
+export default defineConfig([
   {
     name: "Global Ignores",
     ignores: [
@@ -80,43 +68,16 @@ const flatConfig = /** @type {import("eslint").Linter.Config[]} */ ([
     ],
   },
 
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
   jsdocPlugin.configs["flat/recommended-mixed"],
-  comments.recommended,
-  importX.flatConfigs.recommended,
-  importX.flatConfigs.typescript,
-  preset(promise, "flat/recommended"),
-  preset(security, "recommended"),
   jsxA11y.flatConfigs.recommended,
-  preset(nounsanitized, "recommended"),
-
-  // Node
-  {
-    name: "Node",
-    files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
-    ignores: testGlobs,
-    extends: [nodePlugin.configs["flat/recommended-module"]],
-  },
-
-  // RegExp
-  {
-    name: "RegExp",
-    files: ["**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}"],
-    extends: [regexpPlugin.configs["flat/recommended"]],
-  },
-
-  // Sonarjs
-  {
-    name: "Sonarjs",
-    files: ["**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}"],
-    extends: [sonarjs.configs["recommended"]],
-  },
-
-  // Unicorn
-  {
-    name: "Unicorn",
-    files: ["**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}"],
-    extends: [unicornPlugin.configs["recommended"]],
-  },
+  security.configs.recommended,
+  asFlat(importX.flatConfigs.recommended),
+  asFlat(importX.flatConfigs.typescript),
+  asFlat(nounsanitizedPlugin.configs.recommended),
+  ...compat.extends("plugin:promise/recommended"),
+  ...compat.extends("plugin:@eslint-community/eslint-comments/recommended"),
 
   // JavaScript
   {
@@ -124,7 +85,6 @@ const flatConfig = /** @type {import("eslint").Linter.Config[]} */ ([
     files: ["**/*.{js,jsx,cjs,mjs}"],
     ignores: testGlobs,
     plugins: { html },
-    extends: [js.configs.recommended],
     languageOptions: {
       sourceType: "module",
       ecmaVersion: "latest",
@@ -148,15 +108,57 @@ const flatConfig = /** @type {import("eslint").Linter.Config[]} */ ([
     files: ["**/*.{ts,tsx,cts,mts}"],
     ignores: testGlobs,
     plugins: { html },
-    extends: [tseslint.configs.recommended],
+    extends: [tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       sourceType: "module",
       ecmaVersion: "latest",
       parser: tseslint.parser,
       parserOptions: {
         ecmaFeatures: { jsx: true },
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
+  },
+
+  // Node
+  {
+    name: "Node",
+    files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
+    ignores: testGlobs,
+    extends: [nodePlugin.configs["flat/recommended-module"]],
+    rules: {
+      "n/no-missing-import": [
+        "error",
+        {
+          allowModules: ["vscode"],
+          resolvePaths: ["node_modules/@types"],
+          tryExtensions: [".ts", ".d.ts", ".js", ".json", ".node"],
+        },
+      ],
+      "n/no-extraneous-import": ["error", { allowModules: ["vscode"] }],
+    },
+  },
+
+  // RegExp
+  {
+    name: "RegExp",
+    files: ["**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}"],
+    extends: [regexpPlugin.configs["flat/recommended"]],
+  },
+
+  // Sonarjs
+  {
+    name: "Sonarjs",
+    files: ["**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}"],
+    extends: [sonarjs.configs["recommended"]],
+  },
+
+  // Unicorn
+  {
+    name: "Unicorn",
+    files: ["**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}"],
+    extends: [unicornPlugin.configs["recommended"]],
   },
 
   // Jest
@@ -166,7 +168,7 @@ const flatConfig = /** @type {import("eslint").Linter.Config[]} */ ([
     extends: [
       pluginJest.configs["flat/recommended"],
       pluginJest.configs["flat/style"],
-      preset(jestExtended, "flat/all"),
+      ...compat.extends("plugin:jest-extended/all"),
     ],
     languageOptions: {
       globals: { ...baseGlobals },
@@ -199,6 +201,9 @@ const flatConfig = /** @type {import("eslint").Linter.Config[]} */ ([
     plugins: { json },
     extends: ["json/recommended"],
     language: "json/jsonc",
+    rules: {
+      "no-irregular-whitespace": "off",
+    },
   },
 
   // JSON5
@@ -296,5 +301,3 @@ const flatConfig = /** @type {import("eslint").Linter.Config[]} */ ([
     },
   },
 ]);
-
-export default defineConfig(flatConfig);

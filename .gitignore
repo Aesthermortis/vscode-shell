@@ -64,6 +64,9 @@ out/
 /*.tgz
 *.vsix
 
+# === Binaries ===
+/bin/
+
 # === Temp / Runtime ===
 **/tmp/
 **/temp/

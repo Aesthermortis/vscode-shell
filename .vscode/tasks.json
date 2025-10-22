@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "lint: privacy-guard",
+      "type": "shell",
+      "command": "npm run lint",
+      "group": {
+        "kind": "test"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "label": "npm: build",
+      "detail": "rollup -c"
+    },
+    {
+      "label": "eslint config inspector",
+      "type": "shell",
+      "command": "npx @eslint/config-inspector@latest",
+      "group": {
+        "kind": "test"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}

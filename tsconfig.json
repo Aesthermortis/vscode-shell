@@ -1,17 +1,24 @@
 {
   "compilerOptions": {
-    "checkJs": false,
-    "allowJs": true,
+    "target": "esnext",
+    "module": "nodenext",
+    "lib": ["ESNext"],
+    "moduleResolution": "nodenext",
+    "moduleDetection": "force",
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "lib": ["ESNext", "DOM"],
-    "types": [],
+    "resolveJsonModule": true,
+    "importHelpers": true,
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "checkJs": false,
+    "types": ["node", "vscode"],
     "typeRoots": ["./types", "./node_modules/@types"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "useUnknownInCatchVariables": false
   },
-  "include": ["eslint.config.js", "src/**/*", "scripts/**/*", "types/**/*.d.ts"],
+  "include": ["eslint.config.mjs", "tsup.config.ts", "src/**/*.ts", "types/**/*.d.ts"],
   "exclude": ["dist", "node_modules"]
 }

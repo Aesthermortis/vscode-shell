@@ -32,7 +32,7 @@
       {
         "assets": [
           {
-            "path": "*.vsix",
+            "path": "vscode-shell-*.vsix",
             "label": "VSIX Package"
           }
         ]

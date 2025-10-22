@@ -1,8 +1,7 @@
 // @ts-check
-import { defineConfig } from "stylelint-define-config";
 
 /** @type {import("stylelint").Config} */
-export default defineConfig({
+export default {
   extends: ["stylelint-config-standard", "stylelint-config-clean-order"],
   rules: {
     "selector-class-pattern": [
@@ -10,4 +9,4 @@ export default defineConfig({
       { message: "Selector should be in BEM format (e.g., block__element--modifier)" },
     ],
   },
-});
+};
