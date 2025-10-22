@@ -2,7 +2,7 @@
   "name": "vscode-shell",
   "displayName": "Shell Toolkit",
   "description": "ShellCheck linting and shfmt formatting for shell scripts, Dockerfiles, dotenv files, and more.",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "Aesthermortis",
   "author": "",
   "license": "MIT",
